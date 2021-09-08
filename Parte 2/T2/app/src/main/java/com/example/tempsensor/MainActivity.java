@@ -10,15 +10,15 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private SensorManager sensorManager;
     private Sensor light;
+    private Sensor gyroscope;
     private Sensor temperature;
     TextView lightValue;
     TextView temperatureValue;
+    TextView gyroscopeValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,12 +26,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
 
         lightValue = (TextView)findViewById(R.id.light);
+        gyroscopeValue = (TextView)findViewById(R.id.gyroscope);
         temperatureValue = (TextView)findViewById(R.id.temp);
 
         sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
 
         light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-        temperature = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        temperature = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
 
         if(light != null)
         {
@@ -41,13 +43,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         {
             lightValue.setText("Light sensor not supported");
         }
+        if(gyroscope != null)
+        {
+            sensorManager.registerListener(MainActivity.this, gyroscope,
+                    SensorManager.SENSOR_DELAY_NORMAL);
+        }else
+        {
+            gyroscopeValue.setText("Gyroscope sensor not supported");
+        }
         if(temperature != null)
         {
             sensorManager.registerListener(MainActivity.this, temperature,
                     SensorManager.SENSOR_DELAY_NORMAL);
         }else
         {
-            temperatureValue.setText("Temperature sensor not supported");
+            gyroscopeValue.setText("Temperature sensor not supported");
         }
 
     }
@@ -60,6 +70,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             lightValue.setText(String.valueOf(sensorEvent.values[0]));
         }
         if( sensorEvent.sensor.getType() == Sensor.TYPE_GYROSCOPE)
+        {
+            gyroscopeValue.setText(String.valueOf(sensorEvent.values[0]));
+        }
+        if( sensorEvent.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE)
         {
             temperatureValue.setText(String.valueOf(sensorEvent.values[0]));
         }
